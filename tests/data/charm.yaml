@@ -10,6 +10,7 @@ applications:
     trust: true
   aws-cloud-provider:
     charm: {{charm}}
+    trust: true
 relations:
 - - aws-cloud-provider:certificates
   - easyrsa:client
