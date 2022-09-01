@@ -27,6 +27,8 @@ class Certificate(BaseModel):
 
 
 class Data(BaseModel):
+    """Databag from the relation."""
+
     ca: str = Field(alias="ca")
     client_cert: str = Field(alias="client.cert")
     client_key: str = Field(alias="client.key")
@@ -102,7 +104,7 @@ class CertificatesRequires(Object):
         field = "{}.processed_client_requests".format(self._unit_name)
         certs_data = self._raw_data.get(field, {})
         return [
-            Certificate("client", common_name, cert["cert"], cert["key"])
+            Certificate(cert_type="client", common_name=common_name, **cert)
             for common_name, cert in certs_data.items()
         ]
 

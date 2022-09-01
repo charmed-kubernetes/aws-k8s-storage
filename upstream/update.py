@@ -11,7 +11,6 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
-from collections import defaultdict
 from dataclasses import dataclass
 from itertools import accumulate
 from pathlib import Path
@@ -19,8 +18,8 @@ from tempfile import NamedTemporaryFile
 from typing import Generator, List, Optional, Set, Tuple, TypedDict
 
 import yaml
-from semver import VersionInfo
 from kustomize.commands.build import build as kustomize_build
+from semver import VersionInfo
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -70,6 +69,7 @@ class Registry:
             "user": self.user,
             "pass": Path(self.pass_file).read_text().strip(),
         }
+
 
 @dataclass
 class Release:
@@ -136,10 +136,7 @@ def gather_releases(source: str) -> Tuple[str, Set[Release]]:
         with urllib.request.urlopen(GH_TAGS.format(**context)) as resp:
             releases = sorted(
                 [
-                    Release(
-                        item["name"],
-                        GH_PATH.format(branch=item["name"], rel="", **context)
-                    )
+                    Release(item["name"], GH_PATH.format(branch=item["name"], rel="", **context))
                     for item in json.load(resp)
                     if (
                         VERSION_RE.match(item["name"])
@@ -167,6 +164,7 @@ def gather_current(source: str) -> Set[Release]:
 
 @contextlib.contextmanager
 def captured_io(filepath: Path):
+    """Redirect stdout to a file."""
     _stdout = sys.stdout
     sys.stdout = captured_file = filepath.open("w")
     captured_file.write("# ")  # comments out the first line
@@ -182,7 +180,7 @@ def download(source: str, release: Release) -> Release:
     assembled = SOURCES[source]["assembled"]
     dest = FILEDIR / source / "manifests" / release.name / assembled
     dest.parent.mkdir(exist_ok=True)
-    with captured_io(dest): 
+    with captured_io(dest):
         kustomize_build([manifest], False)
     return Release(release.name, dest)
 
@@ -195,9 +193,7 @@ def dedupe(this: Release, next: Release) -> Release:
     """
     file_next = next.path
     file_this = this.path
-    if all(
-        (file_this.name == file_next.name, file_this.read_text() != file_next.read_text())
-    ):
+    if all((file_this.name == file_next.name, file_this.read_text() != file_next.read_text())):
         # Found different in at least one file
         return next
 

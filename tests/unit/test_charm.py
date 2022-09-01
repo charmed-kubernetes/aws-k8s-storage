@@ -149,4 +149,3 @@ def test_waits_for_config(harness: Harness, lk_client, caplog):
             "Encode secret data for storage.",
             "Creating storage class csi-aws-ebs-default",
         }
-

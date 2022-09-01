@@ -4,7 +4,7 @@
 
 import logging
 import subprocess
-from typing import Mapping, Optional, TypedDict
+from typing import Optional
 
 import yaml
 from pydantic import BaseModel, Field, SecretStr, ValidationError
@@ -13,11 +13,15 @@ log = logging.getLogger(__name__)
 
 
 class Credentials(BaseModel):
+    """Represents an aws secret."""
+
     access_key: SecretStr = Field(alias="access-key", min_length=1)
     secret_key: SecretStr = Field(alias="secret-key", min_length=1)
 
 
 class CredentialsError(Exception):
+    """Raised for any issue gathering credentials."""
+
     pass
 
 
@@ -30,8 +34,7 @@ class CharmConfig:
 
     @property
     def credentials(self) -> Credentials:
-        """
-        Get the credentials from either the config or the hook tool.
+        """Get the credentials from either the config or the hook tool.
 
         Prefers the config so that it can be overridden.
         """
@@ -42,7 +45,7 @@ class CharmConfig:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            creds = yaml.load(result.stdout.decode("utf8"))
+            creds = yaml.safe_load(result.stdout.decode("utf8"))
             return Credentials(**creds["credential"]["attributes"])
         except ValidationError as e:
             no_creds_msg = "trust credentials invalid."

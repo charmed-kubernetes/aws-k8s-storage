@@ -8,8 +8,7 @@ from hashlib import md5
 from typing import Dict, Optional
 
 from lightkube.codecs import AnyResource, from_dict
-from lightkube.models.core_v1 import Toleration
-from ops.manifests import Addition, ConfigRegistry, ManifestLabel, Manifests, Patch
+from ops.manifests import Addition, ConfigRegistry, ManifestLabel, Manifests
 
 log = logging.getLogger(__file__)
 SECRET_NAME = "aws-secret"
@@ -26,7 +25,6 @@ class CreateSecret(Addition):
 
     def __call__(self) -> Optional[AnyResource]:
         """Craft the secrets object for the deployment."""
-
         secret_config = {
             new_k: self.manifests.config.get(k) for k, new_k in self.CONFIG_TO_SECRET.items()
         }
@@ -34,7 +32,7 @@ class CreateSecret(Addition):
             log.error("secret data item is None")
             return None
 
-        log.info(f"Encode secret data for storage.")
+        log.info("Encode secret data for storage.")
         for key, value in secret_config.items():
             value = value.encode("utf-8")
             secret_config[key] = base64.b64encode(value).decode("utf-8")
@@ -101,9 +99,7 @@ class AWSStorageManifests(Manifests):
             config["image-registry"] = self.kube_control.get_registry_location()
 
         config.update(**self.charm_config.available_data)
-        config.update(**{
-            k: v.get_secret_value() for k,v in self.charm_config.credentials
-        })
+        config.update(**{k: v.get_secret_value() for k, v in self.charm_config.credentials})
 
         for key, value in dict(**config).items():
             if value == "" or value is None:
