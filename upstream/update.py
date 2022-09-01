@@ -3,6 +3,7 @@
 # See LICENSE file for licensing details.
 """Update to a new upstream release."""
 import argparse
+import contextlib
 import json
 import logging
 import re
@@ -19,6 +20,7 @@ from typing import Generator, List, Optional, Set, Tuple, TypedDict
 
 import yaml
 from semver import VersionInfo
+from kustomize.commands.build import build as kustomize_build
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -26,18 +28,12 @@ GH_REPO = "https://api.github.com/repos/{repo}"
 GH_TAGS = "https://api.github.com/repos/{repo}/tags"
 GH_BRANCH = "https://api.github.com/repos/{repo}/branches/{branch}"
 GH_COMMIT = "https://api.github.com/repos/{repo}/commits/{sha}"
-GH_RAW = "https://raw.githubusercontent.com/{repo}/{branch}/{path}/{rel}/{manifest}"
+GH_PATH = "https://github.com/{repo}/{path}/?ref={branch}"
 
 SOURCES = dict(
     cloud_provider=dict(
         repo="kubernetes/cloud-provider-aws",
-        manifests=[
-            "apiserver-authentication-reader-role-binding.yaml",
-            "aws-cloud-controller-manager-daemonset.yaml",
-            "cluster-role.yaml",
-            "cluster-role-binding.yaml",
-            "service-account.yaml",
-        ],
+        assembled="kustomized.yaml",
         release_tags=True,
         path="examples/existing-cluster/base",
         version_parser=VersionInfo.parse,
@@ -45,27 +41,9 @@ SOURCES = dict(
     ),
     cloud_storage=dict(
         repo="kubernetes-sigs/aws-ebs-csi-driver",
-        manifests=[
-            "clusterrole-attacher.yaml",
-            "clusterrole-csi-node.yaml",
-            "clusterrole-provisioner.yaml",
-            "clusterrole-resizer.yaml",
-            "clusterrole-snapshotter.yaml",
-            "clusterrolebinding-attacher.yaml",
-            "clusterrolebinding-csi-node.yaml",
-            "clusterrolebinding-provisioner.yaml",
-            "clusterrolebinding-resizer.yaml",
-            "clusterrolebinding-snapshotter.yaml",
-            "controller.yaml",
-            "csidriver.yaml",
-            "kustomization.yaml",
-            "node.yaml",
-            "poddisruptionbudget-controller.yaml",
-            "serviceaccount-csi-controller.yaml",
-            "serviceaccount-csi-node.yaml",
-        ],
+        assembled="kustomized.yaml",
         release_tags=True,
-        path="deploy/kubernetes/base",
+        path="deploy/kubernetes/overlays/stable",
         version_parser=VersionInfo.parse,
         minimum="v1.2.0",
     ),
@@ -93,13 +71,12 @@ class Registry:
             "pass": Path(self.pass_file).read_text().strip(),
         }
 
-
-@dataclass(frozen=True)
+@dataclass
 class Release:
     """Defines a release type."""
 
     name: str
-    paths: List[str]
+    path: str
 
     def __hash__(self) -> int:
         """Unique based on its name."""
@@ -161,12 +138,7 @@ def gather_releases(source: str) -> Tuple[str, Set[Release]]:
                 [
                     Release(
                         item["name"],
-                        [
-                            GH_RAW.format(
-                                branch=item["name"], rel="", manifest=manifest, **context
-                            )
-                            for manifest in context["manifests"]
-                        ],
+                        GH_PATH.format(branch=item["name"], rel="", **context)
                     )
                     for item in json.load(resp)
                     if (
@@ -185,24 +157,34 @@ def gather_releases(source: str) -> Tuple[str, Set[Release]]:
 
 def gather_current(source: str) -> Set[Release]:
     """Gather currently supported manifests by the charm."""
-    manifests = SOURCES[source]["manifests"]
-    releases = defaultdict(list)
+    manifests = SOURCES[source]["assembled"]
+    releases = dict()
     for release_path in (FILEDIR / source / "manifests").glob("*/*.yaml"):
         if release_path.name in manifests:
-            releases[release_path.parent.name].append(release_path)
+            releases[release_path.parent.name] = release_path
     return set(Release(version, files) for version, files in releases.items())
+
+
+@contextlib.contextmanager
+def captured_io(filepath: Path):
+    _stdout = sys.stdout
+    sys.stdout = captured_file = filepath.open("w")
+    captured_file.write("# ")  # comments out the first line
+    yield
+    captured_file.close()
+    sys.stdout = _stdout
 
 
 def download(source: str, release: Release) -> Release:
     """Download the manifest files for a specific release."""
     log.info(f"Getting Release {source}: {release.name}")
-    paths = []
-    for manifest in release.paths:
-        dest = FILEDIR / source / "manifests" / release.name / Path(manifest).name
-        dest.parent.mkdir(exist_ok=True)
-        urllib.request.urlretrieve(manifest, dest)
-        paths.append(dest)
-    return Release(release.name, paths)
+    manifest = release.path
+    assembled = SOURCES[source]["assembled"]
+    dest = FILEDIR / source / "manifests" / release.name / assembled
+    dest.parent.mkdir(exist_ok=True)
+    with captured_io(dest): 
+        kustomize_build([manifest], False)
+    return Release(release.name, dest)
 
 
 def dedupe(this: Release, next: Release) -> Release:
@@ -211,35 +193,29 @@ def dedupe(this: Release, next: Release) -> Release:
     returns this release if this==next by content
     returns next release if this!=next by content
     """
-    files_this, files_next = (set(path.name for path in rel.paths) for rel in (this, next))
-    if files_this != files_next:
-        # Found a different set of files
+    file_next = next.path
+    file_this = this.path
+    if all(
+        (file_this.name == file_next.name, file_this.read_text() != file_next.read_text())
+    ):
+        # Found different in at least one file
         return next
 
-    for file_next in next.paths:
-        for file_this in this.paths:
-            if all(
-                (file_this.name == file_next.name, file_this.read_text() != file_next.read_text())
-            ):
-                # Found different in at least one file
-                return next
-
-    for path in next.paths:
-        path.unlink()
-    path.parent.rmdir()
+    next.path.unlink()
+    next.path.parent.rmdir()
     log.info(f"Deleting Duplicate Release {next.name}")
     return this
 
 
 def images(release: Release) -> Generator[str, None, None]:
     """Yield all images from each release."""
-    for path in release.paths:
-        manifest = FILEDIR / source / "manifests" / release.name / Path(path).name
-        with manifest.open() as fp:
-            for line in fp:
-                m = IMG_RE.match(line)
-                if m:
-                    yield m.groups()[0]
+    path = release.path
+    manifest = FILEDIR / source / "manifests" / release.name / Path(path).name
+    with manifest.open() as fp:
+        for line in fp:
+            m = IMG_RE.match(line)
+            if m:
+                yield m.groups()[0]
 
 
 def mirror_image(images: List[str], registry: Registry):
