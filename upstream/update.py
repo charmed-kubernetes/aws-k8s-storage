@@ -3,7 +3,6 @@
 # See LICENSE file for licensing details.
 """Update to a new upstream release."""
 import argparse
-from collections import defaultdict
 import json
 import logging
 import re
@@ -11,6 +10,7 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
+from collections import defaultdict
 from dataclasses import dataclass
 from itertools import accumulate
 from pathlib import Path
@@ -36,8 +36,7 @@ SOURCES = dict(
             "aws-cloud-controller-manager-daemonset.yaml",
             "cluster-role.yaml",
             "cluster-role-binding.yaml",
-            "kustomization.yaml",
-            "service-account.yaml", 
+            "service-account.yaml",
         ],
         release_tags=True,
         path="examples/existing-cluster/base",

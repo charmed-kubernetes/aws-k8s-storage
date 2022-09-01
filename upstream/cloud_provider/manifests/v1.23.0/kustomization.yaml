@@ -1,7 +1,0 @@
-resources:
-- apiserver-authentication-reader-role-binding.yaml
-- aws-cloud-controller-manager-daemonset.yaml
-- cluster-role-binding.yaml
-- cluster-role.yaml
-- service-account.yaml
-

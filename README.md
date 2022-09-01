@@ -4,6 +4,30 @@
 
 This subordinate charm manages the cloud-provider and ebs-csi-driver components in AWS.
 
+## Prerequisites
+
+It's important to understand that the control-plane and worker nodes will need
+access to AWS credentials to facilitate features like creating loadbalancers, 
+mounting volumes, and the like. AWS recommends accomplishing this by giving
+each instance a set number of [policies](https://cloud-provider-aws.sigs.k8s.io/prerequisites/).
+
+Use this policies to create instance-profiles which juju can use as constraints
+for the worker and control-plane nodes.  See [juju instance-profiles](https://discourse.charmhub.io/t/using-aws-instance-profiles-with-juju-2-9/5185).
+
+
+### Steps
+1) use the IAM Policy/Role creator to create the two required instance-profiles
+  * see [AWS: Using instance profiles](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) for more information
+2) Update the overlay used to deploy the bundle such that the applications use those instance-profiles
+  * For example, if the instance-profile for the controller is named `ControlPlaneRole`, 
+
+  ```yaml
+  applications:
+    kubernetes-control-plane:
+      constraints: "cores=2 mem=8G root-disk=16G instance-role=ControlPlaneRole"
+  ```
+
+
 ## Usage
 
 The charm requires aws credentials and connection information, which

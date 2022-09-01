@@ -1,0 +1,47 @@
+options:
+  access-key:
+    description: |
+      An IAM access key.
+
+      It is strongly recommended that you use 'juju trust' instead, if available.
+    type: string
+    default: ""
+  secret-key:
+    description: |
+      An IAM secret key.
+
+      It is strongly recommended that you use 'juju trust' instead, if available.
+    type: string
+    default: ""
+  image-registry:
+    type: string
+    description: |
+      Source registry of metrics server images.
+
+      By setting to a value, each image listed in the releases manifest
+      has its image-registry replaced.
+
+      If unset, the manifests will use the image registry from the kube-control relation
+
+      example)
+        juju config kubernetes-metrics-server image-registry='rocks.canonical.com:443/cdk'
+
+        juju config kubernetes-metrics-server --reset image-registry
+
+  storage-release:
+    type: string
+    description: |
+      Specify the version of storage-provider as defined by the `release`
+      tags of https://github.com/kubernetes-sigs/aws-ebs-csi-driver
+
+      example)
+        juju config aws-cloud-provider storage-release='v1.11.2'
+      
+      A list of supported versions is available through the action:
+        juju run-action aws-cloud-provider/0 list-releases --wait
+      
+      To reset by to the latest supported by the charm use:
+        juju config aws-cloud-provider --reset storage-release
+      
+      The current release deployed is available by viewing
+        juju status aws-cloud-provider

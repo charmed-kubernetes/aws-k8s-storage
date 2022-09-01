@@ -12,10 +12,6 @@ tags:
   - kubernetes
   - cloud-provider
   - aws
-provides:
-  external-cloud-provider:
-    interface: external_cloud_provider
-    limit: 1
 requires:
   aws-integration:
     interface: aws-integration
