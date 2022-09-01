@@ -1,11 +1,8 @@
 description: Overlay for attaching current charm
 applications:
   kubernetes-control-plane:
-    constraints: "cores=2 mem=8G root-disk=16G instance-role=ControlPlaneRole"
     options:
       allow-privileged: "true"
-  kubernetes-worker:
-    constraints: "cores=2 mem=8G root-disk=16G instance-role=NodeRole"
   aws-integrator:
     charm: aws-integrator
     channel: edge
@@ -18,7 +15,12 @@ relations:
   - easyrsa:client
 - - aws-cloud-provider:kube-control
   - kubernetes-control-plane:kube-control
-- - aws-cloud-provider:external-cloud-provider
-  - kubernetes-control-plane:external-cloud-provider
 - - aws-cloud-provider:aws-integration
   - aws-integrator:clients
+
+
+# continue to use this until migrating the control-plane away from the in-tree one
+- - aws-integrator:clients
+  - kubernetes-control-plane:aws
+- - aws-integrator:clients
+  - kubernetes-worker:aws

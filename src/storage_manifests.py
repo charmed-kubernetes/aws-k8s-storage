@@ -67,7 +67,7 @@ class CreateStorageClass(Addition):
                     name=storage_name,
                 ),
                 provisioner="ebs.csi.aws.com",
-                volumeBindingMode="WaitForFirstCustomer",
+                volumeBindingMode="WaitForFirstConsumer",
             )
         )
 
