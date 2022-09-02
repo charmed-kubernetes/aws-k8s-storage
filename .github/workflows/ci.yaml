@@ -45,8 +45,8 @@ jobs:
       - name: Upload charm artifact
         uses: actions/upload-artifact@v3
         with:
-          name: vsphere-cloud-provider.charm
-          path: ./vsphere-cloud-provider*.charm
+          name: aws-cloud-provider.charm
+          path: ./aws-cloud-provider*.charm
       - name: Upload debug artifacts
         if: ${{ failure() }}
         uses: actions/upload-artifact@v3

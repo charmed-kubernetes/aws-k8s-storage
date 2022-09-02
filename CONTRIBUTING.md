@@ -6,7 +6,7 @@ This documents explains the processes and practices recommended for contributing
 this operator.
 
 - Generally, before developing enhancements to this charm, you should consider [opening an issue
-  ](https://github.com/charmed-kubernetes/vsphere-cloud-provider/issues) explaining your use case.
+  ](https://github.com/charmed-kubernetes/aws-cloud-provider/issues) explaining your use case.
 - If you would like to chat with us about your use-cases or proposed implementation, you can reach
   us at [Canonical Mattermost public channel](https://chat.charmhub.io/charmhub/channels/charm-dev)
   or [Discourse](https://discourse.charmhub.io/).
@@ -78,6 +78,6 @@ juju relate aws-integrator aws-cloud-provider
 
 ## Canonical Contributor Agreement
 
-Canonical welcomes contributions to the vSphere Cloud Provider Operator. Please check
+Canonical welcomes contributions to the AWS Cloud Provider. Please check
 out our [contributor agreement](https://ubuntu.com/legal/contributors) if
 you're interested in contributing to the solution.

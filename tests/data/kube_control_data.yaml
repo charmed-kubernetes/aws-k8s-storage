@@ -14,7 +14,7 @@ creds: |-
   {
     "aws-cloud-provider/0": {
       "client_token": "admin::reacted",
-      "kubelet_token": "vsphere-cloud-provider/0::reacted",
+      "kubelet_token": "aws-cloud-provider/0::reacted",
       "proxy_token": "kube-proxy::reacted", 
       "scope": "kubernetes-worker/0"
     }

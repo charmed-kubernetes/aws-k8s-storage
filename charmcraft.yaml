@@ -2,7 +2,7 @@
 # https://juju.is/docs/sdk/charmcraft-config
 
 # Architectures based on supported arch's in upstream
-# https://github.com/kubernetes-sigs/cluster-api-provider-vsphere/blob/ea8ceb4299fdfb79b5ee72601b071b546d79e00e/Makefile#L467
+# https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/Makefile#L39
 type: "charm"
 bases:
   - build-on:
