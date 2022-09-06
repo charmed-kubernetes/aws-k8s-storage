@@ -6,7 +6,7 @@ This documents explains the processes and practices recommended for contributing
 this operator.
 
 - Generally, before developing enhancements to this charm, you should consider [opening an issue
-  ](https://github.com/charmed-kubernetes/aws-cloud-provider/issues) explaining your use case.
+  ](https://github.com/charmed-kubernetes/aws-k8s-storage/issues) explaining your use case.
 - If you would like to chat with us about your use-cases or proposed implementation, you can reach
   us at [Canonical Mattermost public channel](https://chat.charmhub.io/charmhub/channels/charm-dev)
   or [Discourse](https://discourse.charmhub.io/).
@@ -72,12 +72,12 @@ juju add-model dev
 juju model-config logging-config="<root>=INFO;unit=DEBUG"
 # Deploy the charm
 juju deploy aws-integrator
-juju deploy ./aws-cloud-provider_*.charm
-juju relate aws-integrator aws-cloud-provider
+juju deploy ./aws-k8s-storage_*.charm
+juju relate aws-integrator aws-k8s-storage
 ```
 
 ## Canonical Contributor Agreement
 
-Canonical welcomes contributions to the AWS Cloud Provider. Please check
+Canonical welcomes contributions to the AWS K8S Storage. Please check
 out our [contributor agreement](https://ubuntu.com/legal/contributors) if
 you're interested in contributing to the solution.

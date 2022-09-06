@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
-"""Dispatch logic for the aws provider charm."""
+"""Dispatch logic for the aws k8s storage charm."""
 
 import logging
 from pathlib import Path
@@ -20,8 +20,8 @@ from storage_manifests import AWSStorageManifests
 log = logging.getLogger(__name__)
 
 
-class AwsCloudProviderCharm(CharmBase):
-    """Dispatch logic for the VpshereCC operator charm."""
+class AwsK8sStorageCharm(CharmBase):
+    """Dispatch logic for the operator charm."""
 
     CA_CERT_PATH = Path("/srv/kubernetes/ca.crt")
 
@@ -38,7 +38,7 @@ class AwsCloudProviderCharm(CharmBase):
 
         self.CA_CERT_PATH.parent.mkdir(exist_ok=True)
         self.stored.set_default(
-            config_hash=None,  # hashed value of the provider config once valid
+            config_hash=None,  # hashed value of the once valid
             deployed=False,  # True if the config has been applied after new hash
         )
         self.collector = Collector(
@@ -165,7 +165,7 @@ class AwsCloudProviderCharm(CharmBase):
     def _install_or_upgrade(self, _event=None):
         if not self.stored.config_hash:
             return
-        self.unit.status = MaintenanceStatus("Deploying AWS Cloud Provider")
+        self.unit.status = MaintenanceStatus("Deploying AWS Storage")
         self.unit.set_workload_version("")
         for controller in self.collector.manifests.values():
             controller.apply_manifests()
@@ -173,11 +173,11 @@ class AwsCloudProviderCharm(CharmBase):
 
     def _cleanup(self, _event):
         if self.stored.config_hash:
-            self.unit.status = MaintenanceStatus("Cleaning up AWS Cloud Provider")
+            self.unit.status = MaintenanceStatus("Cleaning up AWS Storage")
             for controller in self.collector.manifests.values():
                 controller.delete_manifests(ignore_unauthorized=True)
         self.unit.status = MaintenanceStatus("Shutting down")
 
 
 if __name__ == "__main__":
-    main(AwsCloudProviderCharm)
+    main(AwsK8sStorageCharm)

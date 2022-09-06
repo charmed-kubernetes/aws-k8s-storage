@@ -1,16 +1,17 @@
 # Copyright 2022 Canonical, Ltd.
 # See LICENSE file for licensing details.
-name: aws-cloud-provider
-display-name: AWS Cloud Provider
-summary: Runs the AWS Cloud Provider in the cluster.
-docs: https://discourse.charmhub.io/t/aws-cloud-provider-docs-index/???
+name: aws-k8s-storage
+display-name: AWS Storage Driver
+summary: Runs the AWS Storage Driver in the kubernetes cluster.
+docs: https://discourse.charmhub.io/t/aws-k8s-storage-docs-index/???
 description: >-
-  The AWS cloud provider provides the Kubernetes cluster access to
-  native resources from AWS such as storage and loadbalancers.
+  This charm manages installation of the out of tree csi driver from aws
+  kubernetes-sigs/aws-ebs-csi-driver such that Charmed
+  Kubernetes can use its storage features.
 subordinate: true
 tags:
   - kubernetes
-  - cloud-provider
+  - csi
   - aws
 requires:
   aws-integration:

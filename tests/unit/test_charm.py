@@ -11,12 +11,12 @@ import yaml
 from ops.model import BlockedStatus, MaintenanceStatus, WaitingStatus
 from ops.testing import Harness
 
-from charm import AwsCloudProviderCharm
+from charm import AwsK8sStorageCharm
 
 
 @pytest.fixture
 def harness():
-    harness = Harness(AwsCloudProviderCharm)
+    harness = Harness(AwsK8sStorageCharm)
     try:
         yield harness
     finally:
@@ -26,7 +26,7 @@ def harness():
 @pytest.fixture(autouse=True)
 def mock_ca_cert(tmpdir):
     ca_cert = Path(tmpdir) / "ca.crt"
-    with mock.patch.object(AwsCloudProviderCharm, "CA_CERT_PATH", ca_cert):
+    with mock.patch.object(AwsK8sStorageCharm, "CA_CERT_PATH", ca_cert):
         yield ca_cert
 
 

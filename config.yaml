@@ -35,13 +35,13 @@ options:
       tags of https://github.com/kubernetes-sigs/aws-ebs-csi-driver
 
       example)
-        juju config aws-cloud-provider storage-release='v1.11.2'
+        juju config aws-k8s-storage storage-release='v1.11.2'
       
       A list of supported versions is available through the action:
-        juju run-action aws-cloud-provider/0 list-releases --wait
+        juju run-action aws-k8s-storage/0 list-releases --wait
       
       To reset by to the latest supported by the charm use:
-        juju config aws-cloud-provider --reset storage-release
+        juju config aws-k8s-storage --reset storage-release
       
       The current release deployed is available by viewing
-        juju status aws-cloud-provider
+        juju status aws-k8s-storage

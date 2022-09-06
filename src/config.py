@@ -1,6 +1,6 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
-"""Config Management for the aws cloud provider charm."""
+"""Config Management for the aws k8s storage charm."""
 
 import logging
 import subprocess
