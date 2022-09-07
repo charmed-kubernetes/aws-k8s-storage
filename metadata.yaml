@@ -3,7 +3,7 @@
 name: aws-k8s-storage
 display-name: AWS Storage Driver
 summary: Runs the AWS Storage Driver in the kubernetes cluster.
-docs: https://discourse.charmhub.io/t/aws-k8s-storage-docs-index/???
+docs: https://discourse.charmhub.io/t/aws-k8s-storage-docs-index/6995
 description: >-
   This charm manages installation of the out of tree csi driver from aws
   kubernetes-sigs/aws-ebs-csi-driver such that Charmed

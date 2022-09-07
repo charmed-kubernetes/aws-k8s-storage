@@ -11,17 +11,19 @@ applications:
   aws-k8s-storage:
     charm: {{charm}}
     trust: true
+    options:
+      image-registry: public.ecr.aws
 relations:
 - - aws-k8s-storage:certificates
   - easyrsa:client
 - - aws-k8s-storage:kube-control
   - kubernetes-control-plane:kube-control
 - - aws-k8s-storage:aws-integration
-  - aws-integrator:clients
+  - aws-integrator:aws
 
 
 # continue to use this until migrating the control-plane away from the in-tree one
-- - aws-integrator:clients
+- - aws-integrator:aws
   - kubernetes-control-plane:aws
-- - aws-integrator:clients
+- - aws-integrator:aws
   - kubernetes-worker:aws
