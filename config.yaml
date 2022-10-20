@@ -13,8 +13,10 @@ options:
       It is strongly recommended that you use 'juju trust' instead, if available.
     type: string
     default: ""
+
   image-registry:
     type: string
+    default: "public.ecr.aws"
     description: |
       Source registry of metrics server images.
 
@@ -24,7 +26,7 @@ options:
       If unset, the manifests will use the image registry from the kube-control relation
 
       example)
-        juju config kubernetes-metrics-server image-registry='rocks.canonical.com:443/cdk'
+        juju config kubernetes-metrics-server image-registry=''
 
         juju config kubernetes-metrics-server --reset image-registry
 
