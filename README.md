@@ -20,11 +20,11 @@ juju config kubernetes-control-plane allow-privileged=true
 juju deploy aws-integrator --trust
 juju deploy aws-k8s-storage
 
-juju relate aws-k8s-storage:certificates     easyrsa
-juju relate aws-k8s-storage:kube-control     kubernetes-control-plane
-juju relate aws-k8s-storage                  aws-integrator:clients
-juju relate kubernetes-control-plane         aws-integrator:clients
-juju relate kubernetes-worker                aws-integrator:clients
+juju relate aws-k8s-storage:certificates     easyrsa:client
+juju relate aws-k8s-storage:kube-control     kubernetes-control-plane:kube-control
+juju relate aws-k8s-storage:aws-integration  aws-integrator:aws
+juju relate kubernetes-control-plane:aws     aws-integrator:aws
+juju relate kubernetes-worker:aws            aws-integrator:aws
 
 ##  wait for the kubernetes-control-plane to be active/idle
 kubectl describe nodes |egrep "Taints:|Name:|Provider"
