@@ -84,7 +84,11 @@ class AwsK8sStorageCharm(CharmBase):
     def _sync_resources(self, event):
         manifests = event.params.get("controller", "")
         resources = event.params.get("resources", "")
-        return self.collector.apply_missing_resources(event, manifests, resources)
+        try:
+            self.collector.apply_missing_resources(event, manifests, resources)
+        except ManifestClientError:
+            msg = "Failed to apply missing resources. API Server unavailable."
+            event.set_results({"result": msg})
 
     def _update_status(self, _):
         if not self.stored.deployed:
@@ -185,7 +189,12 @@ class AwsK8sStorageCharm(CharmBase):
         if self.stored.config_hash:
             self.unit.status = MaintenanceStatus("Cleaning up AWS Storage")
             for controller in self.collector.manifests.values():
-                controller.delete_manifests(ignore_unauthorized=True)
+                try:
+                    controller.delete_manifests(ignore_unauthorized=True)
+                except ManifestClientError:
+                    self.unit.status = WaitingStatus("Waiting for kube-apiserver")
+                    event.defer()
+                    return
         self.unit.status = MaintenanceStatus("Shutting down")
 
 
