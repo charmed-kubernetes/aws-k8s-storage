@@ -120,7 +120,9 @@ def test_waits_for_config(harness: Harness, lk_client, caplog):
     with mock.patch.object(lk_client, "list") as mock_list:
         mock_list.side_effect = [
             list(),  # list of CustomResourceDefinitions
-            [mock.Mock(**{"metadata.annotations": {}})],  # list of single object witout annoations
+            [  # list of single object without annoations
+                mock.Mock(**{"metadata.annotations": {}})
+            ],
         ]
         caplog.clear()
         harness.update_config(
