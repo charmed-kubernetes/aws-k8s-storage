@@ -118,7 +118,12 @@ def test_waits_for_kube_control(mock_create_kubeconfig, harness):
 def test_waits_for_config(harness: Harness, lk_client, caplog):
     harness.begin_with_initial_hooks()
     with mock.patch.object(lk_client, "list") as mock_list:
-        mock_list.return_value = [mock.Mock(**{"metadata.annotations": {}})]
+        mock_list.side_effect = [
+            list(),  # list of CustomResourceDefinitions
+            [  # list of single object without annoations
+                mock.Mock(**{"metadata.annotations": {}})
+            ],
+        ]
         caplog.clear()
         harness.update_config(
             {
