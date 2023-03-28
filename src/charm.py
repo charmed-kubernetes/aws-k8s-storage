@@ -89,6 +89,8 @@ class AwsK8sStorageCharm(CharmBase):
         except ManifestClientError:
             msg = "Failed to apply missing resources. API Server unavailable."
             event.set_results({"result": msg})
+        else:
+            self.stored.deployed = True
 
     def _update_status(self, _):
         if not self.stored.deployed:
