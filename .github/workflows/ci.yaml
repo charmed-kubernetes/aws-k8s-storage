@@ -51,8 +51,8 @@ jobs:
       - name: Upload charm artifact
         uses: actions/upload-artifact@v3
         with:
-          name: aws-cloud-provider.charm
-          path: ./aws-cloud-provider*.charm
+          name: aws-k8s-storage.charm
+          path: ./aws-k8s-storage*.charm
       - name: Upload debug artifacts
         if: ${{ failure() }}
         uses: actions/upload-artifact@v3
