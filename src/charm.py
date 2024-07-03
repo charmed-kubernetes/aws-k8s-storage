@@ -6,6 +6,7 @@
 import logging
 from pathlib import Path
 
+from config import CharmConfig
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.interface_kube_control import KubeControlRequirer
@@ -13,8 +14,6 @@ from ops.interface_tls_certificates import CertificatesRequires
 from ops.main import main
 from ops.manifests import Collector, ManifestClientError
 from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
-
-from config import CharmConfig
 from storage_manifests import AWSStorageManifests
 
 log = logging.getLogger(__name__)
