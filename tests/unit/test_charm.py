@@ -8,10 +8,9 @@ from pathlib import Path
 
 import pytest
 import yaml
+from charm import AwsK8sStorageCharm
 from ops.model import BlockedStatus, MaintenanceStatus, WaitingStatus
 from ops.testing import Harness
-
-from charm import AwsK8sStorageCharm
 
 
 @pytest.fixture
@@ -107,7 +106,12 @@ def test_waits_for_kube_control(mock_create_kubeconfig, harness):
     mock_create_kubeconfig.assert_has_calls(
         [
             mock.call(charm.CA_CERT_PATH, "/root/.kube/config", "root", charm.unit.name),
-            mock.call(charm.CA_CERT_PATH, "/home/ubuntu/.kube/config", "ubuntu", charm.unit.name),
+            mock.call(
+                charm.CA_CERT_PATH,
+                "/home/ubuntu/.kube/config",
+                "ubuntu",
+                charm.unit.name,
+            ),
         ]
     )
     assert isinstance(charm.unit.status, BlockedStatus)
@@ -120,7 +124,7 @@ def test_waits_for_config(harness: Harness, lk_client, caplog):
     with mock.patch.object(lk_client, "list") as mock_list:
         mock_list.side_effect = [
             list(),  # list of CustomResourceDefinitions
-            [  # list of single object without annoations
+            [  # list of single object without annotations
                 mock.Mock(**{"metadata.annotations": {}})
             ],
         ]

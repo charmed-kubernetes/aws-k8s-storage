@@ -2,6 +2,7 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
 """Update to a new upstream release."""
+
 import argparse
 import contextlib
 import json
@@ -75,7 +76,7 @@ class Release:
         return hash(self.name)
 
     def __eq__(self, other) -> bool:
-        """Comparible based on its name."""
+        """Comparable based on its name."""
         return isinstance(other, Release) and self.name == other.name
 
     def __lt__(self, other) -> bool:
@@ -114,7 +115,7 @@ def main(source: str, registry: Optional[Registry]):
     for release in new_releases:
         local_releases.add(download(source, release))
     unique_releases = list(dict.fromkeys(accumulate((sorted(local_releases)), dedupe)))
-    all_images = set(image for release in unique_releases for image in images(release))
+    all_images = {image for release in unique_releases for image in images(release)}
     if registry:
         mirror_image(all_images, registry)
     return unique_releases[-1].name, all_images
@@ -128,7 +129,10 @@ def gather_releases(source: str) -> Tuple[str, Set[Release]]:
         with urllib.request.urlopen(GH_TAGS.format(**context)) as resp:
             releases = sorted(
                 [
-                    Release(item["name"], GH_PATH.format(branch=item["name"], rel="", **context))
+                    Release(
+                        item["name"],
+                        GH_PATH.format(branch=item["name"], rel="", **context),
+                    )
                     for item in json.load(resp)
                     if (
                         VERSION_RE.match(item["name"])
@@ -151,7 +155,7 @@ def gather_current(source: str) -> Set[Release]:
     for release_path in (FILEDIR / source / "manifests").glob("*/*.yaml"):
         if release_path.name in manifests:
             releases[release_path.parent.name] = release_path
-    return set(Release(version, files) for version, files in releases.items())
+    return {Release(version, files) for version, files in releases.items()}
 
 
 @contextlib.contextmanager
@@ -185,7 +189,12 @@ def dedupe(this: Release, next: Release) -> Release:
     """
     file_next = next.path
     file_this = this.path
-    if all((file_this.name == file_next.name, file_this.read_text() != file_next.read_text())):
+    if all(
+        (
+            file_this.name == file_next.name,
+            file_this.read_text() != file_next.read_text(),
+        )
+    ):
         # Found different in at least one file
         return next
 
