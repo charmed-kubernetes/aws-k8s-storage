@@ -6,7 +6,6 @@
 import logging
 from pathlib import Path
 
-from config import CharmConfig
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.interface_kube_control import KubeControlRequirer
@@ -14,6 +13,8 @@ from ops.interface_tls_certificates import CertificatesRequires
 from ops.main import main
 from ops.manifests import Collector, ManifestClientError
 from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
+
+from config import CharmConfig
 from storage_manifests import AWSStorageManifests
 
 log = logging.getLogger(__name__)
@@ -104,7 +105,7 @@ class AwsK8sStorageCharm(CharmBase):
             self.app.status = ActiveStatus(self.collector.long_version)
 
     def _kube_control(self, event):
-        self.kube_control.set_auth_request(self.unit.name)
+        self.kube_control.set_auth_request(self.unit.name, "system:masters")
         return self._merge_config(event)
 
     def _check_kube_control(self, event):
@@ -128,6 +129,10 @@ class AwsK8sStorageCharm(CharmBase):
         return True
 
     def _check_certificates(self, event):
+        if self.kube_control.get_ca_certificate():
+            log.info("CA Certificate is available from kube-control.")
+            return True
+
         self.unit.status = MaintenanceStatus("Evaluating certificates.")
         evaluation = self.certificates.evaluate_relation(event)
         if evaluation:
@@ -183,7 +188,7 @@ class AwsK8sStorageCharm(CharmBase):
                 controller.apply_manifests()
             except ManifestClientError as e:
                 self.unit.status = WaitingStatus("Waiting for kube-apiserver")
-                log.warn(f"Encountered retryable installation error: {e}")
+                log.warning("Encountered retryable installation error: %s", e)
                 event.defer()
                 return False
         return True
