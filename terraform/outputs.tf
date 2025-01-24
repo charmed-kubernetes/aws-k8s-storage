@@ -11,6 +11,5 @@ output "requires" {
     aws_integration = "aws-integration"
     kube_control = "kube-control"
     certificates = "certificates"
-
   }
 }
