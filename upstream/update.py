@@ -261,10 +261,7 @@ def get_argparser():
         default=list(SOURCES.keys()),
         choices=SOURCES.keys(),
         type=str,
-        help="Which manifest sources to be updated.\n\n"
-        "example\n"
-        "  --source storage_provider\n"
-        "\n",
+        help="Which manifest sources to be updated.\n\nexample\n  --source storage_provider\n\n",
     )
     return parser
 
