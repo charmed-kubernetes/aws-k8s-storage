@@ -3,7 +3,7 @@
 [project]
 name="aws-k8s-storage"
 version = "0.0.0"
-description = "Charmed Operators for AWS Cloud Provider"
+description = "Charmed Operators for AWS K8s Storage"
 readme = "README.md"
 requires-python = ">=3.10"
 

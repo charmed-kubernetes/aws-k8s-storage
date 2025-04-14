@@ -19,7 +19,7 @@ jobs:
       - call-inclusive-naming-check
     with:
       with-uv: true
-      python: "['3.10', '3.12']"      
+      python: "['3.10', '3.12']"
 
   charmcraft-channel:
     runs-on: ubuntu-24.04
