@@ -31,7 +31,7 @@ class AwsK8sStorageCharm(CharmBase):
         super().__init__(*args)
 
         # Relation Validator and datastore
-        self.kube_control = KubeControlRequirer(self)
+        self.kube_control = KubeControlRequirer(self, schemas="0,1")
         self.certificates = CertificatesRequires(self)
         # Config Validator and datastore
         self.charm_config = CharmConfig(self)
