@@ -13,5 +13,4 @@ resource "juju_application" "aws_k8s_storage" {
   }
 
   config      = var.config
-  constraints = var.constraints
 }
