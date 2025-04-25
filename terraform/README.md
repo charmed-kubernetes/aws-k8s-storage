@@ -12,11 +12,10 @@ The module offers the following configurable inputs:
 
 | Name | Type | Description | Required | Default |
 | - | - | - | - | - |
-| `app_name`| string | Application name | False | aws-k8s-storage | 
+| `app_name`| string | Application name | False | aws-k8s-storage |
 | `base` | string | Ubuntu base to deploy the charm onto | False | ubuntu@22.04 |
 | `channel`| string | Channel that the charm is deployed from | False | 1.31/stable |
 | `config`| map(string) | Map of the charm configuration options | False | {} |
-| `constraints` | string | Juju constraints to apply for this application | False | arch=amd64 |
 | `model`| string | Name of the model that the charm is deployed on | True | - |
 | `revision`| number | Revision number of the charm name | False | null |
 
