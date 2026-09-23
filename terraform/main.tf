@@ -2,9 +2,9 @@
 # See LICENSE file for licensing details.
 
 resource "juju_application" "aws_k8s_storage" {
-  name  = var.app_name
-  model = var.model
-  trust = true
+  name       = var.app_name
+  model_uuid = var.model_uuid
+  trust      = true
 
   charm {
     name     = "aws-k8s-storage"
